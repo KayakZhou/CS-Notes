@@ -24,8 +24,7 @@
 
 ## Collection
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/6_2001550476096035.png"/> </div><br>
-
+![img](pics/6_2001550476096035.png)
 
 ### 1. Set
 
@@ -51,7 +50,7 @@
 
 ## Map
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/2_2001550426232419.png"/> </div><br>
+![img](pics/2_2001550426232419.png)
 
 - TreeMap：基于红黑树实现。
 
@@ -66,7 +65,7 @@
 
 ## 迭代器模式
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/91aa7c29-438f-4fcc-8c63-2a75899139de.png"/> </div><br>
+![img](pics/91aa7c29-438f-4fcc-8c63-2a75899139de.png)
 
 Collection 继承了 Iterable 接口，其中的 iterator() 方法能够产生一个 Iterator 对象，通过这个对象就可以迭代遍历 Collection 中的元素。
 
@@ -127,7 +126,7 @@ public class ArrayList<E> extends AbstractList<E>
 private static final int DEFAULT_CAPACITY = 10;
 ```
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/7935be3d-c2b3-4213-90c9-1e68ec4ac4e7.png"/> </div><br>
+![img](pics/7935be3d-c2b3-4213-90c9-1e68ec4ac4e7.png)
 
 
 ### 2. 扩容
@@ -391,7 +390,7 @@ transient Node<E> first;
 transient Node<E> last;
 ```
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/09184175-9bf2-40ff-8a68-3b467c77216a.png"/> </div><br>
+![img](pics/09184175-9bf2-40ff-8a68-3b467c77216a.png)
 
 ### 2. 与 ArrayList 的比较
 
@@ -413,7 +412,7 @@ transient Entry[] table;
 
 Entry 存储着键值对。它包含了四个字段，从 next 字段我们可以看出 Entry 是一个链表。即数组中的每个位置被当成一个桶，一个桶存放一个链表。HashMap 使用拉链法来解决冲突，同一个链表中存放哈希值相同的 Entry。
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/1d2719d5-8d60-4c9b-a4ad-b2df7c7615af.jpg"/> </div><br>
+![img](pics/1d2719d5-8d60-4c9b-a4ad-b2df7c7615af.jpg)
 
 ```java
 static class Entry<K,V> implements Map.Entry<K,V> {
@@ -489,7 +488,7 @@ map.put("K3", "V3");
 - 计算键值对所在的桶；
 - 在链表上顺序查找，时间复杂度显然和链表的长度成正比。
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/cf779e26-0382-4495-8463-f1e19e2e38a0.jpg"/> </div><br>
+![img](pics/cf779e26-0382-4495-8463-f1e19e2e38a0.jpg)
 
 ### 3. put 操作
 
@@ -825,7 +824,7 @@ final Segment<K,V>[] segments;
 static final int DEFAULT_CONCURRENCY_LEVEL = 16;
 ```
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/deb18bdb-b3b3-4660-b778-b0823a48db12.jpg"/> </div><br>
+![img](pics/deb18bdb-b3b3-4660-b778-b0823a48db12.jpg)
 
 ### 2. size 操作
 
@@ -848,7 +847,6 @@ ConcurrentHashMap 在执行 size 操作时先尝试不加锁，如果连续两�
 如果尝试的次数超过 3 次，就需要对每个 Segment 加锁。
 
 ```java
-
 /**
  * Number of unsynchronized retries in size and containsValue
  * methods before resorting to locking. This is used to avoid
@@ -947,7 +945,7 @@ void afterNodeInsertion(boolean evict) { }
 
 ### afterNodeAccess()
 
-当一个节点被访问时，如果 accessOrder 为 true，则会将该节点移到链表尾部。也就是说指定为 LRU 顺序之后，在每次访问一个节点时，会将这个节点移到链表尾部，保证链表尾部是最近访问的节点，那么链表首部就是最近最久未使用的节点。
+当一个节点被访问时，如果 accessOrder 为 true，则会将该节点移到链表尾部。也就是说指定为 LRU 顺序之后，**在每次访问一个节点时，会将这个节点移到链表尾部，保证链表尾部是最近访问的节点，那么链表首部就是最近最久未使用的节点**。
 
 ```java
 void afterNodeAccess(Node<K,V> e) { // move node to last
@@ -992,7 +990,7 @@ void afterNodeInsertion(boolean evict) { // possibly remove eldest
 }
 ```
 
-removeEldestEntry() 默认为 false，如果需要让它为 true，需要继承 LinkedHashMap 并且覆盖这个方法的实现，这在实现 LRU 的缓存中特别有用，通过移除最近最久未使用的节点，从而保证缓存空间足够，并且缓存的数据都是热点数据。
+**removeEldestEntry() 默认为 false，如果需要让它为 true，需要继承 LinkedHashMap 并且覆盖这个方法的实现，这在实现 LRU 的缓存中特别有用，通过移除最近最久未使用的节点，从而保证缓存空间足够，并且缓存的数据都是热点数据。**
 
 ```java
 protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {

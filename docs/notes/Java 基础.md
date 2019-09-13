@@ -135,6 +135,57 @@ Integer n = 123;
 System.out.println(m == n); // true
 ```
 
+首先**包装类遇到“==”号的情况下，如果不遇到算数运算符（+、-、*、……）是不会自动拆箱的。**所以这里“==”比较的是对象（地址），既然比较的是对象地址，为什么第一个会相等呢？其实和实现有关，对于Integer类型，整型的包装类系统会自动在常量池中初始化-128至127的值，如果c和d都指向同一个对象，即同一个地址。但是对于超出范围外的值就是要通过new来创建包装类型，所以内存地址也不相等，这也是为什么e==f: false。
+
+c==(a+b): true这个相等时因为遇到运算符自动拆箱变为数值比较，所以相等。
+
+**包装类都重写了equals() 方法，他们进行比较时是比的拆箱后数值。但是并不会进行类型转换。**
+
+c.equals(a+b): true。这里a+b返回还是包装类型，然后进行equals方法进行比较时，根据上面的源码可以看出返回true；
+
+g==(a+b): true。因为“==”遇到算数运算符会自动拆箱（long）3==（int）3。
+
+g.equals(a+b): false。从上面的Integer的equals方法可以看出类似的，首先比较a+b类型是不是Long，不是则直接返回false。
+
+**包装类都重写了equals()方法，他们进行比较时是比的拆箱后数值。但是并不会进行类型转换。**
+
+```java
+public boolean equals(Object obj) { 
+    if (obj instanceof Integer) { 
+        //首先看比较的类型是不是同一个类型，如果是，则比较值是否相等，否则是Long则直接返回false
+        return value == ((Integer)obj).intValue();
+    }
+    return false; 
+}
+```
+
+```java
+public class AutoBox {
+    public static void main(String[] args) {
+        Integer a = 1;
+        Integer b = 2;
+        Integer c = 3 ;
+        Integer d = 3;
+        Integer e = 321;
+        Integer f = 321;
+        Long g = 3L;
+        System.out.println("c==d: " + (c==d));
+        System.out.println("e==f: " + (e==f));
+        System.out.println("c==(a+b): " + (c==(a+b)));
+        System.out.println("c.equals(a+b): " + (c.equals(a+b)));
+        System.out.println("g==(a+b): " + (g==(a+b)));
+        System.out.println("g.equals(a+b): " + g.equals(a+b));    
+	}
+}
+//运行结果：
+c==d: true
+e==f: false
+c==(a+b): true
+c.equals(a+b): true
+g==(a+b): true
+g.equals(a+b): false
+```
+
 基本类型对应的缓冲池如下：
 
 - boolean values true and false
@@ -143,7 +194,7 @@ System.out.println(m == n); // true
 - int values between -128 and 127
 - char in the range \u0000 to \u007F
 
-在使用这些基本类型对应的包装类型时，就可以直接使用缓冲池中的对象。
+**在使用这些基本类型对应的包装类型时，就可以直接使用缓冲池中的对象。**
 
 [StackOverflow : Differences between new Integer(123), Integer.valueOf(123) and just 123
 ](https://stackoverflow.com/questions/9030817/differences-between-new-integer123-integer-valueof123-and-just-123)
@@ -189,7 +240,7 @@ value 数组被声明为 final，这意味着 value 数组初始化之后就不�
 
 如果一个 String 对象已经被创建过了，那么就会从 String Pool 中取得引用。只有 String 是不可变的，才可能使用 String Pool。
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/474e5579-38b1-47d2-8f76-a13ae086b039.jpg"/> </div><br>
+![img](/pics/474e5579-38b1-47d2-8f76-a13ae086b039.jpg)
 
 **3. 安全性** 
 
@@ -1317,7 +1368,7 @@ Throwable 可以用来表示任何可以作为异常抛出的类，分为两种�
 -  **受检异常** ：需要用 try...catch... 语句捕获并进行处理，并且可以从异常中恢复；
 -  **非受检异常** ：是程序运行时错误，例如除 0 会引发 Arithmetic Exception，此时程序崩溃并且无法恢复。
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/PPjwP.png" width="600"/> </div><br>
+![img](/pics/PPjwP.png" width="600)
 
 - [Java 入门之异常处理](https://www.tianmaying.com/tutorial/Java-Exception)
 - [Java 异常的面试问题及答案 -Part 1](http://www.importnew.com/7383.html)

@@ -1,4 +1,4 @@
-<!-- GFM-TOC -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   <!-- GFM-TOC -->
 * [一、线程状态转换](#一线程状态转换)
     * [新建（New）](#新建new)
     * [可运行（Runnable）](#可运行runnable)
@@ -61,7 +61,7 @@
 
 # 一、线程状态转换
 
-<div align="center"> <img src="https://gitee.com/CyC2018/CS-Notes/raw/master/docs/pics/96706658-b3f8-4f32-8eb3-dcb7fc8d5381.jpg"/> </div><br>
+![img](/pics/96706658-b3f8-4f32-8eb3-dcb7fc8d5381.jpg)
 
 ## 新建（New）
 
@@ -109,7 +109,7 @@
 
 ## 死亡（Terminated）
 
-可以是线程结束任务之后自己结束，或者产生了异常而结束。
+可以是线程结束任务之后自己结束，或者产生了**异常**而结束。
 
 # 二、使用线程
 
@@ -768,7 +768,7 @@ run..run..run..run..run..run..run..run..run..run..end
 
 和 CountdownLatch 相似，都是通过维护计数器来实现的。线程执行 await() 方法之后计数器会减 1，并进行等待，直到计数器为 0，所有调用 await() 方法而在等待的线程才能继续执行。
 
-CyclicBarrier 和 CountdownLatch 的一个区别是，CyclicBarrier 的计数器通过调用 reset() 方法可以循环使用，所以它才叫做循环屏障。
+CyclicBarrier 和 CountdownLatch 的一个区别是，CyclicBarrier 的计数器通过调用 reset() 方法可以循环使用，所以它才叫做循环屏障。而CountdownLatch只能使用一次。
 
 CyclicBarrier 有两个构造函数，其中 parties 指示计数器的初始值，barrierAction 在所有线程都到达屏障的时候会执行一次。
 
@@ -816,7 +816,9 @@ before..before..before..before..before..before..before..before..before..before..
 
 ## Semaphore
 
-Semaphore 类似于操作系统中的信号量，可以控制对互斥资源的访问线程数。
+Semaphore 类似于操作系统中的信号量，可以控制对互斥资源的访问线程数。是对锁的扩展。
+
+信号量可以指定多个线程，同时访问某一个资源。构造信号量时，必须指定信号量的准入数，即同时能申请多少个许可。当每个线程每次只申请一个许可时，相当于指定了同时有多少个线程可以访问同一个资源。
 
 以下代码模拟了对某个服务的并发请求，每次只能有 3 个客户端同时访问，请求总数为 10。
 
@@ -824,6 +826,7 @@ Semaphore 类似于操作系统中的信号量，可以控制对互斥资源的�
 public class SemaphoreExample {
 
     public static void main(String[] args) {
+        //信号量的准入数，即许可个数。
         final int clientCount = 3;
         final int totalRequestCount = 10;
         Semaphore semaphore = new Semaphore(clientCount);
@@ -831,11 +834,13 @@ public class SemaphoreExample {
         for (int i = 0; i < totalRequestCount; i++) {
             executorService.execute(()->{
                 try {
+                    //尝试获得一个准入的许可。若无法获得，则线程会等待。
                     semaphore.acquire();
                     System.out.print(semaphore.availablePermits() + " ");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
+                    //释放一个许可，以使其他等待许可的线程可以进行资源访问。
                     semaphore.release();
                 }
             });
@@ -907,7 +912,7 @@ other task is running...
 
 java.util.concurrent.BlockingQueue 接口有以下阻塞队列的实现：
 
--  **FIFO 队列** ：LinkedBlockingQueue、ArrayBlockingQueue（固定长度）
+-  **FIFO 队列** ：LinkedBlockingQueue（基于链表实现，无界）、ArrayBlockingQueue（基于数组实现，固定长度）
 -  **优先级队列** ：PriorityBlockingQueue
 
 提供了阻塞的 take() 和 put() 方法：如果队列为空 take() 将阻塞，直到队列中有内容；如果队列为满 put() 将阻塞，直到队列有空闲位置。
@@ -996,8 +1001,13 @@ public class ForkJoinExample extends RecursiveTask<Integer> {
             int middle = first + (last - first) / 2;
             ForkJoinExample leftTask = new ForkJoinExample(first, middle);
             ForkJoinExample rightTask = new ForkJoinExample(middle + 1, last);
+            //调用fork方法时
+            //程序会调用ForkJoinWorkerThread的pushTask方法把当前任务放在ForkJoinTask数组队列里。
+            //然后再调用ForkJoinPool的signalWork方法唤醒或创建一个工作线程来执行任务。
+            //进行异步执行，然后立即返回结果
             leftTask.fork();
             rightTask.fork();
+            //Join方法是阻塞当前线程并等待获取结果。
             result = leftTask.join() + rightTask.join();
         }
         return result;
@@ -1007,8 +1017,10 @@ public class ForkJoinExample extends RecursiveTask<Integer> {
 
 ```java
 public static void main(String[] args) throws ExecutionException, InterruptedException {
+    //生成一个计算任务
     ForkJoinExample example = new ForkJoinExample(1, 10000);
     ForkJoinPool forkJoinPool = new ForkJoinPool();
+    //执行一个任务
     Future result = forkJoinPool.submit(example);
     System.out.println(result.get());
 }
@@ -1637,6 +1649,6 @@ JDK 1.6 引入了偏向锁和轻量级锁，从而让锁拥有了四个状态：
 
 
 
-
 </br><div align="center">⭐️欢迎关注我的公众号 CyC2018，在公众号后台回复关键字 📚 **资料** 可领取复习大纲，这份大纲是我花了一整年时间整理的面试知识点列表，不仅系统整理了面试知识点，而且标注了各个知识点的重要程度，从而帮你理清多而杂的面试知识点。可以说我基本是按照这份大纲来进行复习的，这份大纲对我拿到了 BAT 头条等 Offer 起到很大的帮助。你们完全可以和我一样根据大纲上列的知识点来进行复习，就不用看很多不重要的内容，也可以知道哪些内容很重要从而多安排一些复习时间。</div></br>
+
 <div align="center"><img width="180px" src="https://cyc-1256109796.cos.ap-guangzhou.myqcloud.com/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg"></img></div>
